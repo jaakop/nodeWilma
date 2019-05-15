@@ -175,7 +175,6 @@ function GetMessageBody(messageID) {
                     date: text.slice(text.indexOf('<td>', text.search('<th>Lähetetty: </th>')) + 4, text.indexOf('<', text.indexOf('<td>', text.search('<th>Lähetetty: </th>')) + 4)),
                 },
                 mainMessageBody: text.slice(text.indexOf('class="ckeditor') + 24, text.indexOf('</div>', text.indexOf('class="ckeditor') + 24)),
-                //TODO
                 replies: [
 
                 ]
@@ -221,7 +220,7 @@ function GetMessageBody(messageID) {
                 }
             }
 
-            //TODO: Get the reply bodies
+            // Get the reply bodies
 
             var numberOfReplies = (text.match(/m-replybox /g)).length;
 
