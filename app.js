@@ -225,21 +225,21 @@ function GetMessageBody(messageID) {
 
             var numberOfReplies = (text.match(/m-replybox /g)).length;
 
-            for(let i = 0; i < numberOfReplies; i++){
+            for (let i = 0; i < numberOfReplies; i++) {
                 let reply = text.slice(text.indexOf('<div class="m-replybox '), text.indexOf('</div>', text.indexOf('<div class="m-replybox')));
                 text = text.replace(reply, '');
                 //Get the name of the replier
-                let name = reply.slice(reply.indexOf('>', reply.indexOf('<h2')) + 1 , reply.indexOf('</h2>'));
-                if(name.includes('<a href')){  
+                let name = reply.slice(reply.indexOf('>', reply.indexOf('<h2')) + 1, reply.indexOf('</h2>'));
+                if (name.includes('<a href')) {
                     name = name.slice(name.indexOf('>') + 1, name.indexOf('</'))
-                }else{
+                } else {
                     name = 'Sinä';
                 }
                 //Get the reply body
-                let body = reply.slice(reply.indexOf('>', reply.indexOf('<div class="inner hidden"')) + 1 , reply.indexOf('</div>'));
-                
+                let body = reply.slice(reply.indexOf('>', reply.indexOf('<div class="inner hidden"')) + 1, reply.indexOf('</div>'));
+
                 //push the replies to the result
-                result.replies.push({name: name, messageContent: body});
+                result.replies.push({ name: name, messageContent: body });
             }
 
 
