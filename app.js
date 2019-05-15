@@ -254,5 +254,6 @@ async function RUN() {
     await LoginWilma();
     var messageContent = await GetMessageBody(956831);
     console.log(messageContent);
+    await GetTodaysScedule();
 }
 RUN();
