@@ -1,15 +1,18 @@
 {
-  "name": "nodewilma",
-  "version": "1.0.0",
+  "name": "wilma",
+  "version": "1.0.2",
   "description": "Wilma app made with node",
-  "main": "app.js",
+  "main": "wilma.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Jaakko Sukuvaara",
+  "author": "Jaakko Sukuvaara <jaakko@kronogra.fi>",
   "license": "ISC",
   "dependencies": {
     "request": "^2.88.0",
     "request-cookies": "^1.1.0"
-  }
+  },
+  "keywords": [
+    "Wilma","School"
+  ]
 }
