@@ -1,9 +1,6 @@
-const credentials = require('./credentials');
 const request = require('request');
 
-let SID = '';
 var cJar = request.jar();
-var SESSIONID = '';
 var Cookie = require('request-cookies').Cookie;
 
 var Days = {
@@ -24,10 +21,8 @@ var Days = {
         0: { name: 'Sunday', value: 7, code: 'Sun' }
     }
 }
-
-//Get a SESSIONID from wilma frontpage
+/** Gets the SID */
 function GetSID() {
-
     return new Promise(resolve => {
         request({ url: 'https://wilma.gradia.fi', method: 'GET' }, (error, res, body) => {
             let hiddenInput = '';
@@ -42,51 +37,41 @@ function GetSID() {
             //extract SESSIONID from html
             hiddenInput = hiddenInput.trim();
             let index = hiddenInput.indexOf('"', hiddenInput.search('value'))
-            SESSIONID = hiddenInput.slice(index + 1, hiddenInput.indexOf('"', index + 1));
-            //Update post_data
-            let post_data = {
-                'Login': credentials.username,
-                'Password': credentials.password,
-                'submit': 'Kirjaudu sisään',
-                'SESSIONID': SESSIONID,
-                'Cookie': 'Wilma2LoginID=' + SESSIONID
-            };
-            resolve(post_data);
-        })
-    });
+
+
+            resolve(hiddenInput.slice(index + 1, hiddenInput.indexOf('"', index + 1)));
+    })
+});
 
 }
-//Login to wilma    
-async function LoginWilma() {
+/** Login to wilma and returns a SID*/
+exports.LoginWilma = async function (username, password) {
     return new Promise(async resolve => {
-        var post_data = await GetSID();
+        var SESSIONID = await GetSID();
         //initialize postOptions wich will be sent to wilma
         let postOptions = {
             url: 'https://wilma.gradia.fi/login',
-            headers: post_data.Cookie,
+            headers: 'Wilma2LoginID=' + SESSIONID,
             method: 'POST',
             jar: cJar,
             formData: {
-                'Login': post_data.Login,
-                'Password': post_data.Password,
-                'submit': post_data.submit,
-                'SESSIONID': post_data.SESSIONID
+                'Login': username,
+                'Password': password,
+                'submit': 'Kirjaudu sisään',
+                'SESSIONID': SESSIONID
             }
         }
-        console.log(post_data.SESSIONID);
         //send the request
         request(postOptions, (error, res, body) => {
             console.log(res.statusCode);
             var cookie = new Cookie(cJar.getCookies(postOptions.url)[0]);
-            SID = cookie.toJSON().value;
-            console.log(SID + '\n');
-            resolve();
+            resolve(cookie.toJSON().value);
         });
 
     });
 }
-//Get all messages
-function GetMessages() {
+/** Get all messages and return a JSON of the messages*/
+exports.GetMessages = function (SID) {
     return new Promise(resolve => {
         let postOptions = {
             url: 'https://wilma.gradia.fi/messages/list',
@@ -101,8 +86,8 @@ function GetMessages() {
         });
     });
 }
-//Gets the whole schedule of the month
-function GetSchedule() {
+/** Gets the whole schedule of the month and returns a JSON of the schedule*/
+exports.GetSchedule = function (SID) {
     return new Promise(resolve => {
         let postOptions = {
             url: 'https://wilma.gradia.fi/overview',
@@ -116,41 +101,9 @@ function GetSchedule() {
         });
     });
 }
-//Gets schedule for today
-async function GetTodaysScedule() {
-    schedule = await GetSchedule();
-    let d = new Date()
-    //Finds and prints the todays schedule
-    for (let i = 0; i < schedule.Schedule.length; i++) {
-        for (let j = 0; j < schedule.Schedule[i].DateArray.length; j++) {
-            classDate = new Date(schedule.Schedule[i].DateArray[j])
-            if (classDate.getDate() == d.getDate()) {
-                console.group();
-                //Create a time string with leading zeros
-                var time = (d.getHours() < 10 ? '0' : '') + (d.getHours()) + ':' + ((d.getMinutes() < 10 ? '0' : '') + (d.getMinutes()))
-                //Set the color for the console text
-                //Dim, lesson that has been held
-                if (schedule.Schedule[i].End < time)
-                    console.log("\x1b[0m%s\x1b[0m", schedule.Schedule[i].Groups[0].FullCaption + ' ' + schedule.Schedule[i].Groups[0].ShortCaption);
-                //Green, current lesson
-                else if (schedule.Schedule[i].End > time && schedule.Schedule[i].Start < time)
-                    console.log("\x1b[92m%s\x1b[0m", schedule.Schedule[i].Groups[0].FullCaption + ' ' + schedule.Schedule[i].Groups[0].ShortCaption);
-                //Bright, A lesson that hasn't yet been held
-                else
-                    console.log("\x1b[1m%s\x1b[0m", schedule.Schedule[i].Groups[0].FullCaption + ' ' + schedule.Schedule[i].Groups[0].ShortCaption);
-                console.group()
-                console.log(Days.properties[schedule.Schedule[i].Day].name + ' ' + schedule.Schedule[i].Start + '-' + schedule.Schedule[i].End)
-                console.groupEnd();
-                console.log('');
-                console.groupEnd();
-                break;
-            }
-        }
-    }
-}
 
-//Get the content of a message
-function GetMessageBody(messageID) {
+/** Get the content of a message and returns the message information in a nice JSON format*/
+exports.GetMessageBody = function (messageID, SID) {
 
     return new Promise(resolve => {
         let postOptions = {
@@ -246,13 +199,3 @@ function GetMessageBody(messageID) {
         });
     });
 }
-
-//RUN Application
-//This is a termporally function
-async function RUN() {
-    await LoginWilma();
-    var messageContent = await GetMessageBody(956831);
-    console.log(messageContent);
-    await GetTodaysScedule();
-}
-RUN();
