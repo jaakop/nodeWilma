@@ -1,17 +1,77 @@
 # nodeWilma
 This is a node application, that gets information and schedule from wilma
 
-THIS IS NOT AN OFFICIAL APP
+###This is not an official package
 
-HOW TO USE
+##Installation
+```
+> npm i wilma
+```
 
-Add your wilma credentials at credentials.json
+###Usage
 
-Tp choose a message to get you have to enter its ID in the RUN method where GetMessageBody is called
+To use all of the fucntion you hae to get SID with LoginWilma()
 
-At the moment it will crash due to it trying to get a message of mine. Please change it c:
+```js
+wilma = require('wilma');
+SID = LoginWilma('Username', 'Password');
+```
 
-THIS WORKS AT THE MOMENT ONLY WITH wilma.gradia.fi WILMA
+##Functions
 
-to run application run 'node app' from cmd
+###LoginWilma()
+Gets a SID (session ID) from wilma API. This is used to authenticate your self elsewhere 
+```js
+wilma = require('wilma');
+SID = LoginWilma('Username', 'Password');
+```
 
+###GetMessages
+Gets a list of all receaved messages in sorting by latest
+```js
+
+wilma = require('wilma');
+
+messageList = await GetMessages(/*SID*/);
+
+```
+
+###GetMessageBody()
+Gets all of the info of a message
+
+```js
+
+wilma = require('wilma');
+
+message = await GetMessageBody(/*messageID*/,/*SID*/)
+
+```
+
+###GetSchedule
+Gets current months schedule
+
+```js
+
+wilma = require('wilma');
+
+schedule = await GetSchedule(/*SID*/);
+
+```
+
+##Examples
+
+```js
+wilma = require('wilma');
+
+async function RUN(){
+    //Login
+    SID = await LoginWilma('Username', 'Password');
+    //Get messages
+    messageList = await GetMessages(SID);
+    //Get first message
+    message = await GetMessageBody(messageList[0], SID);
+    //Print the body of the message
+    console.log(message.mainMessageBody);
+}
+RUN();
+```
