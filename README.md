@@ -10,7 +10,7 @@ This is a node application, that gets information and schedule from wilma
 
 ###Usage
 
-To use all of the fucntion you hae to get SID with LoginWilma()
+To use all of the functions you have to get SID with LoginWilma()
 
 ```js
 wilma = require('wilma');
