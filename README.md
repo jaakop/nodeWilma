@@ -69,9 +69,11 @@ async function RUN(){
     //Get messages
     messageList = await GetMessages(SID);
     //Get first message
-    message = await GetMessageBody(messageList[0].Id, SID);
-    //Print the body of the message
+    message = await GetMessageBody(messageList[0].Id, SID);G    //Print the body of the message
     console.log(message.mainMessageBody);
 }
 RUN();
 ```
+
+##Contribute
+[Github](https://github.com/jaakop/nodeWilma)
