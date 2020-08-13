@@ -13,31 +13,25 @@ function GetSID() {
 }
 /** Login to wilma and returns a SID*/
 exports.LoginWilma = async function (username, password) {
+    //Get SID for login
     let SESSIONID = await GetSID();
 
-    console.log(SESSIONID)
     return new Promise(resolve => {
+        //Format data
         let formdata = new FormData();
         formdata.append('SESSIONID', SESSIONID);
         formdata.append("Login", username);
         formdata.append("Password", password);
         formdata.append("submit", "\'Kirjaudu Sisään\'");
-        formdata.append("format", "json");
 
+        //Make post options
         let requestOptions = {
             method: 'POST',
             body: formdata,
-            headers: {
-                cookie: '',
-                ...formdata.getHeaders()
-            },
-            credentials: 'include',
-            follow: 1,
-            timeout: 0,
-            signal: null,
             redirect: 'manual'
         };
 
+        //Make the request
         fetch('https://gradia.inschool.fi/login', requestOptions)
             .then(res => res)
             .then(body => {
