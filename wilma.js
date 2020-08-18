@@ -32,7 +32,7 @@ exports.LoginWilma = async function (username, password) {
         };
 
         //Make the request
-        fetch('https://gradia.inschool.fi/login', requestOptions)
+        fetch('https://gradia.inschool.fi/index_json', requestOptions)
             .then(res => res)
             .then(body => {
                 let cookie = body.headers.raw()['set-cookie'][1]
