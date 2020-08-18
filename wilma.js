@@ -1,74 +1,45 @@
+var FormData = require('form-data');
 const request = require('request');
+const fetch = require('node-fetch');
 
-var cJar = request.jar();
-var Cookie = require('request-cookies').Cookie;
-
-var Days = {
-    Monday: 1,
-    Tuesday: 2,
-    Wednesday: 3,
-    Thursday: 4,
-    Friday: 5,
-    Saturday: 6,
-    Sunday: 0,
-    properties: {
-        1: { name: 'Monday', value: 1, code: 'Mon' },
-        2: { name: 'Tuesday', value: 2, code: 'Tue' },
-        3: { name: 'Wednesday', value: 3, code: 'Wed' },
-        4: { name: 'Thursday', value: 4, code: 'Thu' },
-        5: { name: 'Friday', value: 5, code: 'Fri' },
-        6: { name: 'Saturday', value: 6, code: 'Sat' },
-        0: { name: 'Sunday', value: 7, code: 'Sun' }
-    }
-}
 /** Gets the SID */
 function GetSID() {
     return new Promise(resolve => {
-        request({ url: 'https://wilma.gradia.fi', method: 'GET' }, (error, res, body) => {
-            let hiddenInput = '';
-            let splitResults = body.split('\n');
-            //Search session id
-            for (var i = 0; i < splitResults.length; i++) {
-                if (splitResults[i].includes('<input type="hidden" name="SESSIONID"')) {
-                    hiddenInput = splitResults[i];
-                    break;
-                }
-            }
-            //extract SESSIONID from html
-            hiddenInput = hiddenInput.trim();
-            let index = hiddenInput.indexOf('"', hiddenInput.search('value'))
-
-
-            resolve(hiddenInput.slice(index + 1, hiddenInput.indexOf('"', index + 1)));
-    })
-});
+        fetch('https://gradia.inschool.fi/index_json')
+        .then(res => res.json())
+        .then(json => resolve(json.SessionID));
+    });
 
 }
 /** Login to wilma and returns a SID*/
 exports.LoginWilma = async function (username, password) {
-    return new Promise(async resolve => {
-        var SESSIONID = await GetSID();
-        //initialize postOptions wich will be sent to wilma
-        let postOptions = {
-            url: 'https://wilma.gradia.fi/login',
-            headers: 'Wilma2LoginID=' + SESSIONID,
-            method: 'POST',
-            jar: cJar,
-            formData: {
-                'Login': username,
-                'Password': password,
-                'submit': 'Kirjaudu sisään',
-                'SESSIONID': SESSIONID
-            }
-        }
-        //send the request
-        request(postOptions, (error, res, body) => {
-            console.log(res.statusCode);
-            var cookie = new Cookie(cJar.getCookies(postOptions.url)[0]);
-            resolve(cookie.toJSON().value);
-        });
+    //Get SID for login
+    let SESSIONID = await GetSID();
 
-    });
+    return new Promise(resolve => {
+        //Format data
+        let formdata = new FormData();
+        formdata.append('SESSIONID', SESSIONID);
+        formdata.append("Login", username);
+        formdata.append("Password", password);
+        formdata.append("submit", "\'Kirjaudu Sisään\'");
+
+        //Make post options
+        let requestOptions = {
+            method: 'POST',
+            body: formdata,
+            redirect: 'manual'
+        };
+
+        //Make the request
+        fetch('https://gradia.inschool.fi/index_json', requestOptions)
+            .then(res => res)
+            .then(body => {
+                let cookie = body.headers.raw()['set-cookie'][1]
+                resolve(cookie.slice(cookie.indexOf('=') + 1, cookie.indexOf(';')))
+            }
+            );
+    })
 }
 /** Get all messages and return a JSON of the messages*/
 exports.GetMessages = function (SID) {
@@ -101,7 +72,6 @@ exports.GetSchedule = function (SID) {
         });
     });
 }
-
 /** Get the content of a message and returns the message information in a nice JSON format*/
 exports.GetMessageBody = function (messageID, SID) {
 

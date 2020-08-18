@@ -9,10 +9,11 @@
   "author": "Jaakko Sukuvaara <jaakko@kronogra.fi>",
   "license": "ISC",
   "dependencies": {
-    "request": "^2.88.0",
-    "request-cookies": "^1.1.0"
+    "node-fetch": "^2.6.0",
+    "request": "^2.88.0"
   },
   "keywords": [
-    "Wilma","School"
+    "Wilma",
+    "School"
   ]
 }
