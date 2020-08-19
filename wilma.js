@@ -1,7 +1,6 @@
 const request = require('request');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
-const { rejects } = require('assert');
 
 let wilmaUrl = '';
 
