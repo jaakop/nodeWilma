@@ -1,13 +1,26 @@
 const request = require('request');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
+const { rejects } = require('assert');
+
+let wilmaUrl = '';
+
+/** Set Wilma url */
+exports.SetURL = function(url) {
+    wilmaUrl = url
+}
 
 /** Gets the SID */
 function GetSID() {
-    return new Promise(resolve => {
-        fetch('https://gradia.inschool.fi/index_json')
+    return new Promise((resolve, reject) => {
+        if(!wilmaUrl) reject('Wilma url cannot be empty')
+
+        fetch(wilmaUrl + '/index_json')
         .then(res => res.json())
-        .then(json => resolve(json.SessionID));
+        .then(json => resolve(json.SessionID))
+        .catch(err => {
+            reject(err);
+        })
     });
 
 }
@@ -16,7 +29,8 @@ exports.LoginWilma = async function (username, password) {
     //Get SID for login
     let SESSIONID = await GetSID();
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+        if(!wilmaUrl) reject('Wilma url cannot be empty')
         //Format data
         let formdata = new URLSearchParams();
         formdata.append('SESSIONID', SESSIONID);
@@ -31,13 +45,15 @@ exports.LoginWilma = async function (username, password) {
         };
 
         //Make the request
-        fetch('https://gradia.inschool.fi/index_json', requestOptions)
+        fetch(wilmaUrl + '/index_json', requestOptions)
             .then(res => res)
             .then(body => {
                 let cookie = body.headers.raw()['set-cookie'][1]
                 resolve(cookie.slice(cookie.indexOf('=') + 1, cookie.indexOf(';')))
-            }
-            );
+            })
+            .catch(err => {
+                reject(err);
+            })
     })
 }
 /** Get all messages and return a JSON of the messages*/
