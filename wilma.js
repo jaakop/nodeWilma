@@ -1,6 +1,6 @@
-var FormData = require('form-data');
 const request = require('request');
 const fetch = require('node-fetch');
+const { URLSearchParams } = require('url');
 
 /** Gets the SID */
 function GetSID() {
@@ -18,11 +18,10 @@ exports.LoginWilma = async function (username, password) {
 
     return new Promise(resolve => {
         //Format data
-        let formdata = new FormData();
+        let formdata = new URLSearchParams();
         formdata.append('SESSIONID', SESSIONID);
         formdata.append("Login", username);
         formdata.append("Password", password);
-        formdata.append("submit", "\'Kirjaudu Sisään\'");
 
         //Make post options
         let requestOptions = {
