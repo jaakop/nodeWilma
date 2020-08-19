@@ -12,7 +12,6 @@
     "node-fetch": "^2.6.0",
     "request": "^2.88.0"
   },
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "keywords": [
     "Wilma",
     "School"
