@@ -76,18 +76,20 @@ exports.GetMessages = function (SID) {
     });
 }
 /** Gets the whole schedule of the month and returns a JSON of the schedule*/
-exports.GetSchedule = function (SID) {
+exports.GetSchedule = function (SID, Day) {
     return new Promise(resolve => {
-        let postOptions = {
-            url: 'https://wilma.gradia.fi/overview',
+        let requestOptions = {
             headers: {
                 'Cookie': 'Wilma2SID=' + SID
             },
             method: 'GET'
         }
-        request(postOptions, (error, res, body) => {
-            resolve(JSON.parse(body));
-        });
+        let date = Day.getDate() + '.' + (Day.getMonth() + 1) + '.' + Day.getFullYear()
+
+        fetch(wilmaUrl + userSlug + '/overview?date=' + date, requestOptions)
+        .then(res => res.json())
+        .then(body => resolve(body))
+        .catch(err => console.log('There was an error: \n' + err));
     });
 }
 /** Get the content of a message and returns the message information in a nice JSON format*/
