@@ -3,11 +3,7 @@ const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
 
 let wilmaUrl = '';
-
-/** Set Wilma url */
-exports.SetURL = function(url) {
-    wilmaUrl = url
-}
+let userSlug = '';
 
 /** Gets the SID */
 function GetSID() {
@@ -54,6 +50,14 @@ exports.LoginWilma = async function (username, password) {
                 reject(err);
             })
     })
+}
+/** Set Wilma url */
+exports.SetURL = function(url) {
+    wilmaUrl = url
+}
+/** Set user slug for wilma */
+exports.SetUserSlug = function(slug){
+    userSlug = '/' + slug
 }
 /** Get all messages and return a JSON of the messages*/
 exports.GetMessages = function (SID) {
