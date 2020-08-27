@@ -1,9 +1,9 @@
-const request = require('request');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
 
 let wilmaUrl = '';
 let userSlug = '';
+let wilmaSID = '';
 
 /** Gets the SID */
 function GetSID() {
@@ -44,6 +44,7 @@ exports.LoginWilma = async function (username, password) {
             .then(res => res)
             .then(body => {
                 let cookie = body.headers.raw()['set-cookie'][1]
+                wilmaSID = cookie.slice(cookie.indexOf('=') + 1, cookie.indexOf(';'));
                 resolve(cookie.slice(cookie.indexOf('=') + 1, cookie.indexOf(';')))
             })
             .catch(err => {
@@ -60,11 +61,12 @@ exports.SetUserSlug = function(slug){
     userSlug = '/' + slug
 }
 /** Gets the whole schedule of the month and returns a JSON of the schedule*/
-exports.GetSchedule = function (SID, Day) {
-    return new Promise(resolve => {
+exports.GetSchedule = function (Day) {
+    return new Promise((resolve, reject) => {
+        if(wilmaSID === '') reject('Wilma sid is null');
         let requestOptions = {
             headers: {
-                'Cookie': 'Wilma2SID=' + SID
+                'Cookie': 'Wilma2SID=' + wilmaSID
             },
             method: 'GET'
         }
@@ -73,15 +75,16 @@ exports.GetSchedule = function (SID, Day) {
         fetch(wilmaUrl + userSlug + '/overview?date=' + date, requestOptions)
         .then(res => res.json())
         .then(body => resolve(body))
-        .catch(err => console.log('There was an error: \n' + err));
+        .catch(err => reject('There was an error: \n' + err));
     });
 }
 /** Get all messages and return a JSON of the messages*/
-exports.GetMessages = function (SID) {
+exports.GetMessages = function () {
     return new Promise((resolve, reject) => {
+        if(wilmaSID === '') reject('Wilma sid is null');
         let postOptions = {
             headers: {
-                'Cookie': 'Wilma2SID=' + SID
+                'Cookie': 'Wilma2SID=' + wilmaSID
             },
             method: 'GET'
         }
@@ -93,12 +96,12 @@ exports.GetMessages = function (SID) {
     });
 }
 /** Get the content of a message and returns the message information in a nice JSON format*/
-exports.GetMessageBody = function (messageID, SID) {
-
+exports.GetMessageBody = function (messageID) {
     return new Promise((resolve, reject) => {
+        if(wilmaSID === '') reject('Wilma sid is null');
         let postOptions = {
             headers: {
-                'Cookie': 'Wilma2SID=' + SID
+                'Cookie': 'Wilma2SID=' + wilmaSID
             },
             method: 'GET'
         }
