@@ -63,16 +63,13 @@ exports.SetUserSlug = function(slug){
 exports.GetMessages = function (SID) {
     return new Promise(resolve => {
         let postOptions = {
-            url: 'https://wilma.gradia.fi/messages/list',
             headers: {
                 'Cookie': 'Wilma2SID=' + SID
             },
             method: 'GET'
         }
-        //Make a request
-        request(postOptions, (error, res, body) => {
-            resolve(JSON.parse(body));
-        });
+        
+
     });
 }
 /** Gets the whole schedule of the month and returns a JSON of the schedule*/
@@ -84,7 +81,7 @@ exports.GetSchedule = function (SID, Day) {
             },
             method: 'GET'
         }
-        let date = Day.getDate() + '.' + (Day.getMonth() + 1) + '.' + Day.getFullYear()
+        let date = Day ? Day.getDate() + '.' + (Day.getMonth() + 1) + '.' + Day.getFullYear() : ''
 
         fetch(wilmaUrl + userSlug + '/overview?date=' + date, requestOptions)
         .then(res => res.json())
