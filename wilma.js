@@ -62,7 +62,8 @@ exports.SetUserSlug = function(slug){
 }
 /** Gets the whole schedule of the month and returns a JSON of the schedule*/
 exports.GetSchedule = function (Day) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+        if(wilmaSID === '') reject('Wilma sid is null');
         let requestOptions = {
             headers: {
                 'Cookie': 'Wilma2SID=' + wilmaSID
@@ -74,12 +75,13 @@ exports.GetSchedule = function (Day) {
         fetch(wilmaUrl + userSlug + '/overview?date=' + date, requestOptions)
         .then(res => res.json())
         .then(body => resolve(body))
-        .catch(err => console.log('There was an error: \n' + err));
+        .catch(err => reject('There was an error: \n' + err));
     });
 }
 /** Get all messages and return a JSON of the messages*/
 exports.GetMessages = function () {
     return new Promise((resolve, reject) => {
+        if(wilmaSID === '') reject('Wilma sid is null');
         let postOptions = {
             headers: {
                 'Cookie': 'Wilma2SID=' + wilmaSID
@@ -95,8 +97,8 @@ exports.GetMessages = function () {
 }
 /** Get the content of a message and returns the message information in a nice JSON format*/
 exports.GetMessageBody = function (messageID) {
-
     return new Promise((resolve, reject) => {
+        if(wilmaSID === '') reject('Wilma sid is null');
         let postOptions = {
             headers: {
                 'Cookie': 'Wilma2SID=' + wilmaSID
