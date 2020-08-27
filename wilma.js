@@ -1,6 +1,7 @@
 const request = require('request');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
+const { rejects } = require('assert');
 
 let wilmaUrl = '';
 let userSlug = '';
@@ -61,14 +62,17 @@ exports.SetUserSlug = function(slug){
 }
 /** Get all messages and return a JSON of the messages*/
 exports.GetMessages = function (SID) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         let postOptions = {
             headers: {
                 'Cookie': 'Wilma2SID=' + SID
             },
             method: 'GET'
         }
-        
+        fetch(wilmaUrl + userSlug + '/messages/list', postOptions)
+        .then(res => res.json())
+        .then(body => resolve(body))
+        .catch(err => reject("There was an error \n" + err));
 
     });
 }
