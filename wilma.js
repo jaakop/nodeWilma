@@ -1,9 +1,9 @@
-const request = require('request');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
 
 let wilmaUrl = '';
 let userSlug = '';
+let wilmaSID = '';
 
 /** Gets the SID */
 function GetSID() {
@@ -44,6 +44,7 @@ exports.LoginWilma = async function (username, password) {
             .then(res => res)
             .then(body => {
                 let cookie = body.headers.raw()['set-cookie'][1]
+                wilmaSID = cookie.slice(cookie.indexOf('=') + 1, cookie.indexOf(';'));
                 resolve(cookie.slice(cookie.indexOf('=') + 1, cookie.indexOf(';')))
             })
             .catch(err => {
@@ -60,11 +61,11 @@ exports.SetUserSlug = function(slug){
     userSlug = '/' + slug
 }
 /** Gets the whole schedule of the month and returns a JSON of the schedule*/
-exports.GetSchedule = function (SID, Day) {
+exports.GetSchedule = function (Day) {
     return new Promise(resolve => {
         let requestOptions = {
             headers: {
-                'Cookie': 'Wilma2SID=' + SID
+                'Cookie': 'Wilma2SID=' + wilmaSID
             },
             method: 'GET'
         }
@@ -77,11 +78,11 @@ exports.GetSchedule = function (SID, Day) {
     });
 }
 /** Get all messages and return a JSON of the messages*/
-exports.GetMessages = function (SID) {
+exports.GetMessages = function () {
     return new Promise((resolve, reject) => {
         let postOptions = {
             headers: {
-                'Cookie': 'Wilma2SID=' + SID
+                'Cookie': 'Wilma2SID=' + wilmaSID
             },
             method: 'GET'
         }
@@ -93,12 +94,12 @@ exports.GetMessages = function (SID) {
     });
 }
 /** Get the content of a message and returns the message information in a nice JSON format*/
-exports.GetMessageBody = function (messageID, SID) {
+exports.GetMessageBody = function (messageID) {
 
     return new Promise((resolve, reject) => {
         let postOptions = {
             headers: {
-                'Cookie': 'Wilma2SID=' + SID
+                'Cookie': 'Wilma2SID=' + wilmaSID
             },
             method: 'GET'
         }
